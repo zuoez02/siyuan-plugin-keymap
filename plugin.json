@@ -1,0 +1,16 @@
+{
+    "name": "siyuan-plugin-keymap",
+    "author": "zuoez02",
+    "url": "https://github.com/zuoez02/siyuan-plugin-keymap",
+    "version": "0.1.0",
+    "minAppVersion": "2.9.4",
+    "displayName": {
+        "default": "快捷键帮助"
+    },
+    "description": {
+        "default": "快捷键帮助"
+    },
+    "readme": {
+        "default": "README.md"
+    }
+}
