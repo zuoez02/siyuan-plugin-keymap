@@ -2,13 +2,13 @@
     "name": "siyuan-plugin-keymap",
     "author": "zuoez02",
     "url": "https://github.com/zuoez02/siyuan-plugin-keymap",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "minAppVersion": "2.9.4",
     "displayName": {
-        "default": "快捷键帮助"
+        "default": "快捷键"
     },
     "description": {
-        "default": "快捷键帮助"
+        "default": "快捷键插件，支持快捷键帮助面板，支持通过命令面板功能根据配置自定义脚本快捷键"
     },
     "readme": {
         "default": "README.md"
