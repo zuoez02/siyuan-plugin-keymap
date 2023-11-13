@@ -5,6 +5,12 @@
     overflow: auto;
 }
 
+.keymap-plugin-search {
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--b3-theme-background-light);
+    padding-bottom: 10px;
+}
+
 .keymap-plugin-header {
     font-size: 18px;
     font-weight: bold;

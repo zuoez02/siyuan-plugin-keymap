@@ -1,11 +1,11 @@
 # 快捷键
 
-1. 点击状态栏右下角的“快捷键”，即可显示快捷键内容
+1. 点击状态栏右下角的“快捷键”, 即可显示快捷键内容, 支持搜索
 2. 自定义命令
 
 ## Usage 使用方法
 
-修改`/data/storage/petal/siyuan-plugin-quick-script/config.json`文件，内容为脚本配置，例如：
+修改`/data/storage/petal/siyuan-plugin-keymap/config.json`文件，内容为脚本配置，例如：
 
 ```json
 [{"langKey":"打开首页", "script":"window.open('siyuan://blocks/20230103184046-v2ierte')"}]

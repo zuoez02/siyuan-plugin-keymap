@@ -1,5 +1,6 @@
 const { Plugin, Dialog } = require("siyuan");
 
+// copy from siyuan
 const updateHotkeyTip = (hotkey) => {
   if (/Mac/.test(navigator.platform) || navigator.platform === "iPhone") {
     return hotkey;
@@ -32,6 +33,25 @@ const updateHotkeyTip = (hotkey) => {
 
   return keys.join("+");
 };
+
+const sendGlobalShortcut = (app) => {
+  const hotkeys = [window.siyuan.config.keymap.general.toggleWin.custom];
+  app.plugins.forEach(plugin => {
+      plugin.commands.forEach(command => {
+          if (command.globalCallback) {
+              hotkeys.push(command.customHotkey);
+          }
+      });
+  });
+  ipcRenderer.send(Constants.SIYUAN_HOTKEY, {
+      languages: window.siyuan.languages["_trayMenu"],
+      hotkeys
+  });
+};
+
+/// END
+
+let searchInput = '';
 
 module.exports = class KeymapPlugin extends Plugin {
   onload() {
@@ -79,25 +99,55 @@ module.exports = class KeymapPlugin extends Plugin {
       }
     }
     const content = `<div class="keymap-plugin-container">
-      <div class="keymap-plugin-header">${
-        window.siyuan.languages["general"]
-      }</div>
-      ${types.general
-        .map(
-          (v) =>
-            `<div class="keymap-plugin-item"><div class="keymap-plugin-title" title="${v.key}">${v.key}</div><div class="keymap-plugin-value config-keymap__key">${v.value}</div></div>`
-        )
-        .join("")}
+      <div class="keymap-plugin-search">
+      <span>搜索</span>
+        <input class="b3-text-field" type="input" id="keymap-plugin-search-input"/>
+      </div>
+      <div id="keymap-plugin-content"></div>
+    </div>`;
+
+    const render = () => {
+      // genernal
+      const generals = types.general.filter((v) => !searchInput || (searchInput && v.key.indexOf(searchInput) >= 0));
+      let innerHTML = '';
+      if (generals.length > 0) {
+        innerHTML += `
+        <div class="keymap-plugin-header">${
+          window.siyuan.languages["general"]
+        }</div>
+        ${generals
+          .map(
+            (v) =>
+              `<div class="keymap-plugin-item"><div class="keymap-plugin-title" title="${v.key}">${v.key}</div><div class="keymap-plugin-value config-keymap__key">${v.value}</div></div>`
+          )
+          .join("")}
+        `;
+      }
+      
+    // editor
+    const editorKeys = Object.keys(types.editor);
+    const editor = {};
+    let showEditor = false;
+    for (const k of editorKeys) {
+      editor[k] = types.editor[k].filter((v1) => !searchInput || (searchInput && v1.key.indexOf(searchInput) >= 0));
+      if (editor[k].length > 0) {
+        showEditor = true;
+      } else {
+        delete editor[k];
+      }
+    }
+    if (showEditor) {
+      innerHTML += `
       <div class="keymap-plugin-header">${
         window.siyuan.languages["editor"]
       }</div>
-      ${Object.keys(types.editor)
+      ${Object.keys(editor)
         .map(
           (v) => `
         <div class="keymap-plugin-header-2">${
           window.siyuan.languages[v] || v
         }</div>
-        ${types.editor[v]
+        ${editor[v]
           .map(
             (v1) =>
               `<div class="keymap-plugin-item"><div class="keymap-plugin-title" title="${v1.key}">${v1.key}</div><div class="keymap-plugin-value config-keymap__key">${v1.value}</div></div>`
@@ -106,14 +156,32 @@ module.exports = class KeymapPlugin extends Plugin {
       `
         )
         .join("")}
+      `;
+    }
+    // plugin
+    const pluginKeys = Object.keys(types.plugin);
+    const plugin = {};
+    let showPlugin = false;
+    for (const k of pluginKeys) {
+      plugin[k] = types.plugin[k].filter((v1) => !searchInput || (searchInput && v1.key.indexOf(searchInput) >= 0));
+      if (plugin[k].length > 0) {
+        showPlugin = true;
+      } else {
+        delete plugin[k];
+      }
+    }
+    if (showPlugin) {
+      innerHTML += `
       <div class="keymap-plugin-header">${
         window.siyuan.languages["plugin"]
       }</div>
-      ${Object.keys(types.plugin)
+      ${Object.keys(plugin)
         .map(
           (v) => `
-        <div class="keymap-plugin-header-2">${pluginNames[v] || v}</div>
-        ${types.plugin[v]
+        <div class="keymap-plugin-header-2">${
+          window.siyuan.languages[v] || v
+        }</div>
+        ${plugin[v]
           .map(
             (v1) =>
               `<div class="keymap-plugin-item"><div class="keymap-plugin-title" title="${v1.key}">${v1.key}</div><div class="keymap-plugin-value config-keymap__key">${v1.value}</div></div>`
@@ -122,11 +190,29 @@ module.exports = class KeymapPlugin extends Plugin {
       `
         )
         .join("")}
-    </div>`;
+      `;
+    }
+    
+      const contentEl = document.getElementById('keymap-plugin-content');
+      if (contentEl) {
+        contentEl.innerHTML = innerHTML;
+      }
+    }
     const dialog = new Dialog({
       width: "1120px",
       title: this.i18n.title,
       content,
+    });
+    render();
+
+    const input = document.getElementById('keymap-plugin-search-input');
+    if (!input) {
+      return;
+    }
+
+    input.addEventListener('keyup', (e) => {
+      searchInput = e.target.value || '';
+      render();
     });
   }
 
@@ -156,7 +242,7 @@ module.exports = class KeymapPlugin extends Plugin {
     if (arr.length === 0) {
       await this.saveData("script.json", [
         {
-          langKey: "hello wolrd",
+          langKey: "hello world",
           script: "console.log('hello world')",
         },
       ]);
@@ -209,6 +295,16 @@ module.exports = class KeymapPlugin extends Plugin {
       if (res.ok) {
         window.location.reload();
       }
+    });
+  }
+
+  changeKeyMap() {
+    window.siyuan.config.keymap = data;
+    fetch("/api/setting/setKeymap", {
+        body: JSON.stringify(data),
+        method: 'POST'
+    }, () => {
+        sendGlobalShortcut(app);
     });
   }
 };
