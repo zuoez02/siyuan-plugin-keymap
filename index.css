@@ -5,6 +5,19 @@
     overflow: auto;
 }
 
+#keymap-plugin-search-input {
+    margin-right: 20px;
+}
+
+.repeated-key {
+    cursor: pointer;
+}
+
+.repeated-key:hover {
+    background-color: var(--b3-list-hover);
+    border-radius: 2px;
+}
+
 .keymap-plugin-search {
     margin-bottom: 6px;
     border-bottom: 1px solid var(--b3-theme-background-light);
@@ -35,6 +48,12 @@
     padding: 2px 6px;
     position: relative;
     height: 20px;
+}
+
+.keymap-plugin-item.selected {
+    background-color: var(--b3-theme-primary-light);
+    color: var(--b3-theme-primary);
+    border-color: var(--b3-theme-primary);
 }
 
 .keymap-plugin-item:hover {
