@@ -10,7 +10,10 @@
 }
 
 .repeated-key {
+    margin-right: 6px;
+    border: 1px solid var(--b3-theme-on-background);
     cursor: pointer;
+    padding: 2px 4px;
 }
 
 .repeated-key:hover {
